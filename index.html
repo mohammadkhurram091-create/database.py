@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#101b18">
+    <meta name="description" content="Zikrnoor — your daily spiritual companion for Quran, Adhkar, Tasbeeh and Hadith. Build a consistent habit of remembrance.">
+    <meta name="author" content="Zikrnoor">
+
+    <!-- Social preview -->
+    <meta property="og:title" content="Zikrnoor — Your Daily Spiritual Companion">
+    <meta property="og:description" content="Quran, Adhkar, Tasbeeh, Hadith and a daily routine — all in one calm, focused space.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <title>Zikrnoor | Your Daily Spiritual Companion</title>
+
+    <link rel="stylesheet" href="./style.css">
+
+    <!-- =================================================================
+         ENHANCEMENT STYLES — self-contained.
+         Only styles NEW decorative elements. Nothing here touches
+         elements that style.css already styles.
+         When you're ready, move these rules into style.css.
+         ================================================================= -->
+    <style>
+        /* Skip-to-content accessibility link */
+        .skip-link {
+            position: absolute;
+            top: -60px;
+            left: 16px;
+            z-index: 9999;
+            padding: 10px 18px;
+            background: var(--gold, #d7b66d);
+            color: var(--bg, #101b18);
+            font-weight: 700;
+            border-radius: 10px;
+            transition: top 0.2s ease;
+        }
+        .skip-link:focus { top: 16px; }
+
+        /* Decorative floating orbs in the hero */
+        .welcome { position: relative; }
+        .hero-orbs {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.35;
+            animation: heroFloat 18s ease-in-out infinite;
+        }
+        .hero-orb-1 {
+            width: 260px; height: 260px;
+            background: radial-gradient(circle, #d7b66d, transparent 70%);
+            top: 8%; right: 6%;
+            animation-delay: 0s;
+        }
+        .hero-orb-2 {
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, #83b89a, transparent 70%);
+            top: 45%; right: 22%;
+            animation-delay: -6s;
+            opacity: 0.28;
+        }
+        .hero-orb-3 {
+            width: 180px; height: 180px;
+            background: radial-gradient(circle, #f5ddb0, transparent 70%);
+            top: 20%; left: -4%;
+            animation-delay: -12s;
+            opacity: 0.15;
+        }
+        @keyframes heroFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50%      { transform: translate(20px, -30px) scale(1.08); }
+        }
+
+        /* Hero stat strip — "engagement proof" */
+        .hero-stats {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 28px;
+        }
+        .hero-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            padding: 14px 20px;
+            border: 1px solid var(--border, rgba(215, 182, 109, 0.15));
+            border-radius: 14px;
+            background: rgba(16, 27, 21, 0.5);
+            min-width: 108px;
+        }
+        .hero-stat strong {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--gold, #d7b66d);
+            letter-spacing: -0.3px;
+            line-height: 1.1;
+        }
+        .hero-stat span {
+            font-size: 11.5px;
+            color: var(--muted, #b6c8bd);
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Trust chips below the hero CTA */
+        .hero-proofs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+        .hero-proof {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(131, 184, 154, 0.08);
+            border: 1px solid rgba(131, 184, 154, 0.25);
+            color: var(--green, #83b89a);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+        .hero-proof::before {
+            content: '✓';
+            font-weight: 800;
+        }
+
+        /* Numbered badges on feature cards */
+        .feature-number {
+            position: absolute;
+            top: 20px;
+            right: 22px;
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: rgba(215, 182, 109, 0.35);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Section hint pills */
+        .section-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            margin: 4px 0 18px;
+            border-radius: 999px;
+            background: rgba(131, 184, 154, 0.08);
+            border: 1px solid rgba(131, 184, 154, 0.2);
+            color: var(--green, #83b89a);
+            font-size: 12.5px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+        .section-hint::before {
+            content: '✦';
+            opacity: 0.8;
+        }
+
+        /* Back-to-top floating button */
+        .back-to-top {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d7b66d, #f5ddb0);
+            color: #0a1410;
+            font-size: 20px;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 8px 24px rgba(215, 182, 109, 0.35);
+            z-index: 200;
+            opacity: 0;
+            transform: translateY(16px);
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .back-to-top:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(215, 182, 109, 0.5);
+        }
+
+        /* Enhanced footer */
+        .footer-nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 4px 20px;
+            margin: 18px 0 8px;
+            padding: 0;
+            list-style: none;
+        }
+        .footer-nav a {
+            color: var(--muted, #b6c8bd);
+            font-size: 12.5px;
+            transition: color 0.2s;
+        }
+        .footer-nav a:hover { color: var(--gold, #d7b66d); }
+
+        .footer-meta {
+            margin-top: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted, #b6c8bd);
+            font-size: 11.5px;
+            opacity: 0.7;
+        }
+        .footer-meta .dot {
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .hero-orb, .back-to-top {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Skip link for keyboard users -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
+
+    <!-- HEADER -->
+    <header class="site-header" id="home">
+        <a href="#home" class="brand">Zikrnoor</a>
+        <p>Your daily spiritual companion</p>
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav class="navbar" aria-label="Main navigation">
+        <a href="#home">Home</a>
+        <a href="#quran">Quran</a>
+        <a href="#adhkar">Daily Adhkar</a>
+        <a href="#tasbeeh-tool">Tasbeeh</a>
+        <a href="#hadith-library">Hadith</a>
+        <a href="#routine">My Routine</a>
+        <a href="#bookmarks">Bookmarks</a>
+    </nav>
+
+    <main class="container" id="main-content">
+
+        <!-- ============================================================
+             HERO / WELCOME
+             ============================================================ -->
+        <section class="welcome">
+            <div class="hero-orbs" aria-hidden="true">
+                <span class="hero-orb hero-orb-1"></span>
+                <span class="hero-orb hero-orb-2"></span>
+                <span class="hero-orb hero-orb-3"></span>
+            </div>
+
+            <span class="eyebrow">YOUR PATH TO DAILY REMEMBRANCE</span>
+
+            <h1>
+                Bring peace to your day with
+                <span>Zikrnoor.</span>
+            </h1>
+
+            <p>
+                Make time for Quran, remember Allah through daily Adhkar,
+                count your Tasbeeh and learn from authentic Hadith sources.
+            </p>
+
+            <a href="#tasbeeh-tool" class="primary-button">
+                Start your remembrance <span aria-hidden="true">→</span>
+            </a>
+
+            <div class="hero-proofs">
+                <span class="hero-proof">Works offline</span>
+                <span class="hero-proof">No account needed</span>
+                <span class="hero-proof">Private by design</span>
+            </div>
+
+            <div class="hero-stats" aria-label="Zikrnoor at a glance">
+                <div class="hero-stat">
+                    <strong>6</strong>
+                    <span>Daily tools</span>
+                </div>
+                <div class="hero-stat">
+                    <strong>100%</strong>
+                    <span>Private</span>
+                </div>
+                <div class="hero-stat">
+                    <strong>0</strong>
+                    <span>Sign-ups</span>
+                </div>
+                <div class="hero-stat">
+                    <strong>1</strong>
+                    <span>Companion</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             DAILY REMINDER
+             ============================================================ -->
+        <section class="daily-card" aria-label="Daily reminder">
+            <div class="daily-icon" aria-hidden="true">✦</div>
+
+            <div>
+                <span class="eyebrow">A GENTLE REMINDER</span>
+                <h2>Remember Allah throughout your day</h2>
+                <p>
+                    Make a little time for remembrance and build a
+                    consistent daily worship routine.
+                </p>
+                <small>Your journey begins with one step.</small>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             FEATURE GRID
+             ============================================================ -->
+        <section aria-labelledby="features-heading">
+            <div class="section-heading">
+                <span class="eyebrow">EXPLORE ZIKRNOOR</span>
+                <h2 id="features-heading">Your spiritual toolkit</h2>
+            </div>
+
+            <div class="feature-grid">
+
+                <article class="feature-card">
+                    <span class="feature-number" aria-hidden="true">01</span>
+                    <div class="feature-icon" aria-hidden="true">📖</div>
+                    <span class="feature-tag">READ &amp; REFLECT</span>
+                    <h3>Quran</h3>
+                    <p>Make Quran reading part of your daily routine.</p>
+                    <a class="card-link" href="#quran">
+                        Explore Quran <span>→</span>
+                    </a>
+                </article>
+
+                <article class="feature-card">
+                    <span class="feature-number" aria-hidden="true">02</span>
+                    <div class="feature-icon" aria-hidden="true">🤲</div>
+                    <span class="feature-tag">DAILY REMEMBRANCE</span>
+                    <h3>Daily Adhkar</h3>
+                    <p>Keep morning and evening remembrance close.</p>
+                    <a class="card-link" href="#adhkar">
+                        Explore Adhkar <span>→</span>
+                    </a>
+                </article>
+
+                <article class="feature-card">
+                    <span class="feature-number" aria-hidden="true">03</span>
+                    <div class="feature-icon" aria-hidden="true">📿</div>
+                    <span class="feature-tag">COUNT YOUR ZIKR</span>
+                    <h3>Tasbeeh Counter</h3>
+                    <p>Count your remembrance and set a daily target.</p>
+                    <a class="card-link" href="#tasbeeh-tool">
+                        Start counting <span>→</span>
+                    </a>
+                </article>
+
+                <article class="feature-card">
+                    <span class="feature-number" aria-hidden="true">04</span>
+                    <div class="feature-icon" aria-hidden="true">☪</div>
+                    <span class="feature-tag">LEARN &amp; REFLECT</span>
+                    <h3>Hadith Collection</h3>
+                    <p>Explore a Hadith and visit its source reference.</p>
+                    <a class="card-link" href="#hadith-library">
+                        Read Hadith <span>→</span>
+                    </a>
+                </article>
+
+                <article class="feature-card">
+                    <span class="feature-number" aria-hidden="true">05</span>
+                    <div class="feature-icon" aria-hidden="true">✓</div>
+                    <span class="feature-tag">BUILD CONSISTENCY</span>
+                    <h3>My Daily Routine</h3>
+                    <p>Create a habit of making time for worship.</p>
+                    <a class="card-link" href="#routine">
+                        View routine <span>→</span>
+                    </a>
+                </article>
+
+                <article class="feature-card">
+                    <span class="feature-number" aria-hidden="true">06</span>
+                    <div class="feature-icon" aria-hidden="true">☆</div>
+                    <span class="feature-tag">KEEP YOUR FAVOURITES</span>
+                    <h3>My Bookmarks</h3>
+                    <p>Keep your favourite Ayat and Adhkar in one place.</p>
+                    <a class="card-link" href="#bookmarks">
+                        View bookmarks <span>→</span>
+                    </a>
+                </article>
+
+            </div>
+        </section>
+
+        <!-- ============================================================
+             QURAN
+             ============================================================ -->
+        <section class="app-section" id="quran">
+            <span class="eyebrow">READ &amp; REFLECT</span>
+            <h2>Quran</h2>
+            <p>Your space for Quran reading and reflection.</p>
+
+            <span class="section-hint">Tip: press Escape to clear your search</span>
+
+            <div class="quran-tools">
+                <input
+                    type="text"
+                    id="quran-search"
+                    placeholder="Search Surah by name or number..."
+                    aria-label="Search Surah"
+                >
+                <p id="quran-status" aria-live="polite">Loading Quran...</p>
+            </div>
+
+            <div id="quran-results"></div>
+        </section>
+
+        <!-- ============================================================
+             DAILY ADHKAR
+             ============================================================ -->
+        <section class="app-section" id="adhkar">
+            <span class="eyebrow">MORNING &amp; EVENING</span>
+            <h2>Daily Adhkar</h2>
+            <p>Make remembrance a part of your daily routine.</p>
+
+            <span class="section-hint">Complete your morning and evening remembrance</span>
+
+            <div class="adhkar-controls">
+                <button class="adhkar-tab active" data-time="morning">
+                    Morning
+                </button>
+                <button class="adhkar-tab" data-time="evening">
+                    Evening
+                </button>
+            </div>
+
+            <input
+                type="search"
+                id="adhkar-search"
+                placeholder="Search Adhkar..."
+                aria-label="Search Adhkar"
+            >
+
+            <p id="adhkar-status" aria-live="polite">Loading Adhkar...</p>
+
+            <div id="adhkar-results"></div>
+        </section>
+
+        <!-- ============================================================
+             TASBEEH COUNTER
+             ============================================================ -->
+        <section class="app-section" id="tasbeeh-tool">
+            <span class="eyebrow">YOUR DAILY REMEMBRANCE</span>
+            <h2>Tasbeeh Counter</h2>
+            <p>Select your zikr and count at your own pace.</p>
+
+            <div class="tasbeeh-panel">
+
+                <label for="zikr-select">Choose your zikr</label>
+                <select id="zikr-select">
+                    <option value="SubhanAllah">SubhanAllah</option>
+                    <option value="Alhamdulillah">Alhamdulillah</option>
+                    <option value="Allahu Akbar">Allahu Akbar</option>
+                    <option value="Astaghfirullah">Astaghfirullah</option>
+                </select>
+
+                <label for="target-select">Daily target</label>
+                <select id="target-select">
+                    <option value="33">33 counts</option>
+                    <option value="100">100 counts</option>
+                    <option value="500">500 counts</option>
+                    <option value="1000">1000 counts</option>
+                </select>
+
+                <div class="counter-display">
+                    <span id="current-zikr">SubhanAllah</span>
+                    <strong id="count" aria-live="polite">0</strong>
+                    <span id="target-label">Target: 33</span>
+                </div>
+
+                <div
+                    class="progress-track"
+                    role="progressbar"
+                    aria-label="Daily Tasbeeh target progress"
+                    aria-valuemin="0"
+                    aria-valuemax="33"
+                    aria-valuenow="0"
+                    id="progress-track"
+                >
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+
+                <p id="progress-message" aria-live="polite">
+                    Your journey starts here.
+                </p>
+
+                <button type="button" id="count-button" class="count-button">
+                    Count +1
+                </button>
+
+                <button type="button" id="reset-button" class="reset-button">
+                    Reset count
+                </button>
+
+            </div>
+        </section>
+
+        <!-- ============================================================
+             HADITH COLLECTION
+             ============================================================ -->
+        <section class="app-section" id="hadith-library">
+            <span class="eyebrow">KNOW · REFLECT · PRACTICE</span>
+            <h2>Hadith Collection</h2>
+            <p>Explore the teachings of Prophet Muhammad ﷺ.</p>
+
+            <span class="section-hint">Authentic sources linked with every reference</span>
+
+            <div class="hadith-toolbar">
+                <input type="search" id="hadith-search"
+                    placeholder="Search by topic or keyword..."
+                    aria-label="Search Hadith">
+
+                <button type="button" id="saved-hadith">
+                    ♡ Saved
+                </button>
+            </div>
+
+            <div class="hadith-filters" aria-label="Filter Hadith by topic">
+                <button class="hadith-filter active" data-topic="all">All</button>
+                <button class="hadith-filter" data-topic="faith">Faith</button>
+                <button class="hadith-filter" data-topic="intentions">Intentions</button>
+            </div>
+
+            <p id="hadith-status" aria-live="polite">Loading Hadith...</p>
+
+            <div id="hadith-results" class="hadith-grid"></div>
+        </section>
+
+        <div class="hadith-sources">
+            <h3>Read Hadith from Original Sources</h3>
+            <p>Search and read directly from these websites.</p>
+
+            <a href="https://quran.ahlesunat.com/hadith/books"
+               target="_blank" rel="noopener noreferrer">
+                Ahle Sunnat — Hadith Library ↗
+            </a>
+
+            <a href="https://sunnah.com/"
+               target="_blank" rel="noopener noreferrer">
+                Sunnah.com — Hadith Collection ↗
+            </a>
+        </div>
+
+        <!-- ============================================================
+             DAILY ROUTINE
+             ============================================================ -->
+        <section class="app-section" id="routine">
+            <span class="eyebrow">BUILD A CONSISTENT HABIT</span>
+            <h2>My Daily Routine</h2>
+            <p>Complete your daily habits and track your progress.</p>
+
+            <div class="routine-progress">
+                <div class="routine-progress-info">
+                    <span>Today's Progress</span>
+                    <span id="routine-progress-text">0 of 3 completed</span>
+                </div>
+                <div class="routine-progress-track">
+                    <div id="routine-progress-fill"></div>
+                </div>
+            </div>
+
+            <ul class="routine-list" id="routine-list">
+                <li><label><input type="checkbox" class="routine-task"><span>Morning Adhkar</span></label></li>
+                <li><label><input type="checkbox" class="routine-task"><span>Read Quran</span></label></li>
+                <li><label><input type="checkbox" class="routine-task"><span>Evening Adhkar</span></label></li>
+            </ul>
+        </section>
+
+        <!-- ============================================================
+             BOOKMARKS
+             ============================================================ -->
+        <section class="app-section" id="bookmarks">
+            <span class="eyebrow">YOUR SAVED CONTENT</span>
+            <h2>My Bookmarks</h2>
+            <p>Your personal space for favourite Ayat and Adhkar.</p>
+
+            <div id="bookmarks-results"></div>
+
+            <p id="bookmarks-empty" class="bookmarks-empty">
+                No bookmarks yet. Save Quran verses or Adhkar to see them here.
+            </p>
+        </section>
+
+    </main>
+
+    <!-- ============================================================
+         FOOTER
+         ============================================================ -->
+    <footer class="site-footer">
+        <a href="#home" class="footer-brand">Zikrnoor</a>
+        <p>Your daily spiritual companion.</p>
+
+        <ul class="footer-nav">
+            <li><a href="#quran">Quran</a></li>
+            <li><a href="#adhkar">Adhkar</a></li>
+            <li><a href="#tasbeeh-tool">Tasbeeh</a></li>
+            <li><a href="#hadith-library">Hadith</a></li>
+            <li><a href="#routine">Routine</a></li>
+            <li><a href="#bookmarks">Bookmarks</a></li>
+        </ul>
+
+        <p class="footer-note">Built with care for your daily remembrance.</p>
+
+        <div class="footer-meta">
+            <span>v1.0</span>
+            <span class="dot"></span>
+            <span>Private by design</span>
+            <span class="dot"></span>
+            <span>No trackers</span>
+        </div>
+    </footer>
+
+    <!-- Back-to-top button (small enhancement script below) -->
+    <a href="#home" class="back-to-top" id="back-to-top" aria-label="Back to top">↑</a>
+
+    <!-- ================================================================
+         STRUCTURED DATA (JSON-LD) — improves search engine understanding.
+         No runtime impact, no JS dependency.
+         ================================================================ -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Zikrnoor",
+        "description": "Your daily spiritual companion for Quran, Adhkar, Tasbeeh and Hadith.",
+        "applicationCategory": "LifestyleApplication",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0"
+        }
+    }
+    </script>
+
+    <script>
+    (function () {
+        var btn = document.getElementById('back-to-top');
+        if (!btn) return;
+        var toggle = function () {
+            btn.classList.toggle('visible', window.scrollY > 400);
+        };
+        window.addEventListener('scroll', toggle, { passive: true });
+        toggle();
+    })();
+    </script>
+
+    <!-- Main application script — MUST stay as the last script -->
+    <script src="./script.js"></script>
+</body>
+</html>

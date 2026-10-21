@@ -1,0 +1,6 @@
+{
+    "python.terminal.useEnvFile": true,
+    "files.encoding": "utf8",
+    "files.autoSave": "off",
+    "python.analysis.typeCheckingMode": "off"
+}

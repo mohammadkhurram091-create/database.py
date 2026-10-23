@@ -1,48 +1,25 @@
 "use strict";
 
 /* ============================================================
-   ZIKRNOOR — MODERN SCRIPT
-   ============================================================
-   - No dependencies
-   - No HTML or CSS changes required
-   - All existing IDs, classes, and localStorage keys preserved
-   - Modern syntax: optional chaining, nullish coalescing
-   - Web Animations API for smooth, CSS-free effects
-   - Respects prefers-reduced-motion
+   ZIKRNOOR — MODERN SCRIPT (Unified Bookmarks)
    ============================================================ */
 
-// ---------------------------------------------------------------------------
-// CONSTANTS
-// ---------------------------------------------------------------------------
-const PREFERS_REDUCED_MOTION =
-    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+const PREFERS_REDUCED_MOTION = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 
 const STORAGE_KEYS = {
     SAVED_HADITH: "zikrnoor-saved-hadith",
     ROUTINE: "zikrnoor-routine",
+    SAVED_QURAN: "zikrnoor-quran-bookmarks",
+    SAVED_TASBEEH: "zikrnoor-tasbeeh-bookmarks"
 };
 
-// ---------------------------------------------------------------------------
 // UTILITIES
-// ---------------------------------------------------------------------------
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
 function debounce(fn, delay = 200) {
     let timer = null;
-    return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn(...args), delay);
-    };
-}
-
-function animate(el, keyframes, options) {
-    if (!el || PREFERS_REDUCED_MOTION) return null;
-    try {
-        return el.animate(keyframes, options);
-    } catch {
-        return null;
-    }
+    return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay); };
 }
 
 function haptic(ms = 8) {
@@ -50,80 +27,35 @@ function haptic(ms = 8) {
     navigator.vibrate?.(ms);
 }
 
-/* Small fade-in animation for cards added to a result grid. */
 function fadeInChildren(container, stagger = 40) {
     if (!container || PREFERS_REDUCED_MOTION) return;
     Array.from(container.children).forEach((child, i) => {
-        child.animate(
-            [
-                { opacity: 0, transform: "translateY(8px)" },
-                { opacity: 1, transform: "translateY(0)" },
-            ],
-            {
-                duration: 350,
-                delay: i * stagger,
-                easing: "cubic-bezier(0.2, 0.8, 0.3, 1)",
-                fill: "backwards",
-            }
-        );
+        child.animate([{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "translateY(0)" }], 
+        { duration: 350, delay: i * stagger, easing: "cubic-bezier(0.2, 0.8, 0.3, 1)", fill: "backwards" });
     });
 }
 
-/* Pulse effect for the big counter number. */
 function pulseCounter(el) {
-    if (!el) return;
-    animate(
-        el,
-        [
-            { transform: "scale(1)", filter: "drop-shadow(0 0 24px rgba(215,182,109,0.3))" },
-            { transform: "scale(1.08)", filter: "drop-shadow(0 0 40px rgba(215,182,109,0.65))" },
-            { transform: "scale(1)", filter: "drop-shadow(0 0 24px rgba(215,182,109,0.3))" },
-        ],
-        { duration: 280, easing: "cubic-bezier(0.2, 0.8, 0.3, 1)" }
-    );
+    if (!el || PREFERS_REDUCED_MOTION) return;
+    el.animate([{ transform: "scale(1)" }, { transform: "scale(1.08)" }, { transform: "scale(1)" }], { duration: 280 });
 }
 
-/* Click-anywhere ripple effect for buttons. */
 function attachRipple(root = document) {
     if (PREFERS_REDUCED_MOTION) return;
-    root.addEventListener(
-        "pointerdown",
-        (event) => {
-            const btn = event.target.closest("button, .primary-button");
-            if (!btn) return;
-            const rect = btn.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height) * 2;
-            const span = document.createElement("span");
-            Object.assign(span.style, {
-                position: "absolute",
-                left: `${event.clientX - rect.left - size / 2}px`,
-                top: `${event.clientY - rect.top - size / 2}px`,
-                width: `${size}px`,
-                height: `${size}px`,
-                borderRadius: "50%",
-                background: "rgba(255, 255, 255, 0.18)",
-                pointerEvents: "none",
-                transform: "scale(0)",
-                opacity: "1",
-            });
-            if (getComputedStyle(btn).position === "static") {
-                btn.style.position = "relative";
-            }
-            btn.style.overflow = "hidden";
-            btn.appendChild(span);
-            span.animate(
-                [
-                    { transform: "scale(0)", opacity: "0.55" },
-                    { transform: "scale(1)", opacity: "0" },
-                ],
-                { duration: 550, easing: "ease-out" }
-            ).onfinish = () => span.remove();
-        },
-        { passive: true }
-    );
+    root.addEventListener("pointerdown", (event) => {
+        const btn = event.target.closest("button, .primary-button");
+        if (!btn) return;
+        const rect = btn.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height) * 2;
+        const span = document.createElement("span");
+        Object.assign(span.style, { position: "absolute", left: `${event.clientX - rect.left - size / 2}px`, top: `${event.clientY - rect.top - size / 2}px`, width: `${size}px`, height: `${size}px`, borderRadius: "50%", background: "rgba(255, 255, 255, 0.18)", pointerEvents: "none", transform: "scale(0)", opacity: "1" });
+        if (getComputedStyle(btn).position === "static") btn.style.position = "relative";
+        btn.style.overflow = "hidden";
+        btn.appendChild(span);
+        span.animate([{ transform: "scale(0)", opacity: "0.55" }, { transform: "scale(1)", opacity: "0" }], { duration: 550, easing: "ease-out" }).onfinish = () => span.remove();
+    }, { passive: true });
 }
 
-/* Toast notification — dynamically injected, no CSS needed. */
 function toast(message, kind = "info") {
     const palette = {
         info: { bg: "rgba(16, 27, 21, 0.95)", border: "rgba(215, 182, 109, 0.6)", fg: "#f5ddb0" },
@@ -131,80 +63,28 @@ function toast(message, kind = "info") {
         warning: { bg: "rgba(30, 22, 16, 0.95)", border: "rgba(215, 182, 109, 0.6)", fg: "#f5ddb0" },
     };
     const { bg, border, fg } = palette[kind] ?? palette.info;
-
     const el = document.createElement("div");
-    el.setAttribute("role", "status");
     el.textContent = message;
-    Object.assign(el.style, {
-        position: "fixed",
-        bottom: "24px",
-        right: "24px",
-        padding: "12px 20px",
-        background: bg,
-        border: `1px solid ${border}`,
-        borderRadius: "12px",
-        color: fg,
-        fontSize: "14px",
-        fontWeight: "600",
-        boxShadow: "0 12px 40px rgba(0,0,0,0.55), 0 0 24px rgba(215,182,109,0.2)",
-        zIndex: "9999",
-        backdropFilter: "blur(12px)",
-        opacity: "0",
-        transform: "translateY(20px)",
-        transition: "opacity 0.25s ease, transform 0.25s ease",
-        pointerEvents: "none",
-    });
+    Object.assign(el.style, { position: "fixed", bottom: "24px", right: "24px", padding: "12px 20px", background: bg, border: `1px solid ${border}`, borderRadius: "12px", color: fg, fontSize: "14px", fontWeight: "600", zIndex: "9999", backdropFilter: "blur(12px)", opacity: "0", transform: "translateY(20px)", transition: "all 0.25s ease", pointerEvents: "none" });
     document.body.appendChild(el);
-
-    requestAnimationFrame(() => {
-        el.style.opacity = "1";
-        el.style.transform = "translateY(0)";
-    });
-
-    setTimeout(() => {
-        el.style.opacity = "0";
-        el.style.transform = "translateY(20px)";
-        setTimeout(() => el.remove(), 300);
-    }, 2200);
+    requestAnimationFrame(() => { el.style.opacity = "1"; el.style.transform = "translateY(0)"; });
+    setTimeout(() => { el.style.opacity = "0"; el.style.transform = "translateY(20px)"; setTimeout(() => el.remove(), 300); }, 2200);
 }
 
-
-// ---------------------------------------------------------------------------
 // BOOT
-// ---------------------------------------------------------------------------
 function bootZikrnoor() {
     initTasbeeh();
     initQuran();
     initAdhkar();
     initHadith();
     initRoutine();
+    initBookmarks();
     attachRipple();
-    attachSearchEscapeHandler();
-    console.log(
-        "%c[Zikrnoor]%c Ready — 5 modules loaded.",
-        "color:#d7b66d;font-weight:800",
-        "color:#83b89a"
-    );
+    console.log("%c[Zikrnoor]%c Ready — 6 modules loaded.", "color:#d7b66d;font-weight:800", "color:#83b89a");
 }
 
-function attachSearchEscapeHandler() {
-    document.addEventListener("keydown", (event) => {
-        if (event.key !== "Escape") return;
-        const search = document.activeElement;
-        if (search && search.matches("input[type='search'], input[type='text']")) {
-            search.value = "";
-            search.dispatchEvent(new Event("input", { bubbles: true }));
-            search.blur();
-        }
-    });
-}
-
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bootZikrnoor);
-} else {
-    bootZikrnoor();
-}
-
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bootZikrnoor);
+else bootZikrnoor();
 
 // ---------------------------------------------------------------------------
 // 1. TASBEEH COUNTER
@@ -221,26 +101,15 @@ function initTasbeeh() {
     const countButton   = $("#count-button");
     const resetButton   = $("#reset-button");
 
-    if (!zikrSelect || !targetSelect || !currentZikr || !countDisplay
-        || !targetLabel || !progressTrack || !progressFill
-        || !progressMsg || !countButton || !resetButton) {
-        console.warn("[Zikrnoor] Tasbeeh elements missing — skipping.");
-        return;
-    }
-
+    if (!zikrSelect) return;
     let count = 0;
-    let targetCelebrated = false;
 
-    const getTarget = () => Number(targetSelect.value) || 33;
-
-    function updateDisplay({ animateNumber = false } = {}) {
-        const target = getTarget();
+    function updateDisplay() {
+        const target = Number(targetSelect.value) || 33;
         const pct = Math.min((count / target) * 100, 100);
-
-        currentZikr.textContent  = zikrSelect.value;
+        currentZikr.textContent = zikrSelect.value;
         countDisplay.textContent = count;
-        targetLabel.textContent  = `Target: ${target}`;
-
+        targetLabel.textContent = `Target: ${target}`;
         progressFill.style.width = `${pct}%`;
         progressTrack.setAttribute("aria-valuemax", target);
         progressTrack.setAttribute("aria-valuenow", count);
@@ -248,34 +117,33 @@ function initTasbeeh() {
         if (count >= target)      progressMsg.textContent = "Alhamdulillah! Your target is complete.";
         else if (count === 0)     progressMsg.textContent = "Your journey starts here.";
         else                      progressMsg.textContent = `${target - count} counts remaining. Keep going!`;
-
-        if (animateNumber) pulseCounter(countDisplay);
-
-        if (count >= target && !targetCelebrated) {
-            targetCelebrated = true;
-            haptic(30);
-            toast("Target complete — Alhamdulillah!", "success");
-        }
-        if (count < target) targetCelebrated = false;
     }
 
-    countButton.addEventListener("click", () => {
-        count += 1;
-        haptic(8);
-        updateDisplay({ animateNumber: true });
-    });
-
-    resetButton.addEventListener("click", () => {
-        count = 0;
-        updateDisplay();
-    });
-
-    zikrSelect.addEventListener("change", () => updateDisplay());
-    targetSelect.addEventListener("change", () => updateDisplay());
-
+    countButton.addEventListener("click", () => { count++; haptic(8); pulseCounter(countDisplay); updateDisplay(); });
+    resetButton.addEventListener("click", () => { count = 0; updateDisplay(); });
+    zikrSelect.addEventListener("change", updateDisplay);
+    targetSelect.addEventListener("change", updateDisplay);
     updateDisplay();
-}
 
+    // Add Save Button to Tasbeeh
+    const saveBtn = document.createElement("button");
+    saveBtn.textContent = "♡ Save this Zikr";
+    saveBtn.className = "reset-button";
+    saveBtn.style.marginTop = "10px";
+    saveBtn.addEventListener("click", () => {
+        const zikr = zikrSelect.value;
+        let saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_TASBEEH) || "[]");
+        if (!saved.includes(zikr)) {
+            saved.push(zikr);
+            localStorage.setItem(STORAGE_KEYS.SAVED_TASBEEH, JSON.stringify(saved));
+            toast("Zikr saved to bookmarks!", "success");
+            if (window.refreshBookmarks) window.refreshBookmarks();
+        } else {
+            toast("Zikr already saved.", "warning");
+        }
+    });
+    $(".tasbeeh-panel").appendChild(saveBtn);
+}
 
 // ---------------------------------------------------------------------------
 // 2. QURAN
@@ -284,291 +152,180 @@ function initQuran() {
     const quranSearch  = $("#quran-search");
     const quranResults = $("#quran-results");
     const quranStatus  = $("#quran-status");
-
-    if (!quranSearch || !quranResults || !quranStatus) {
-        console.warn("[Zikrnoor] Quran elements missing — skipping.");
-        return;
-    }
-
+    if (!quranSearch) return;
     let surahs = [];
-    let requestId = 0;
-    const inFlight = new Map(); // number → AbortController
 
     async function loadQuran() {
-        quranStatus.textContent = "Loading Quran...";
-        quranResults.replaceChildren();
         try {
-            const response = await fetch("https://api.alquran.cloud/v1/surah");
-            if (!response.ok) throw new Error("Surah list unavailable");
-            const result = await response.json();
-            if (result.code !== 200) throw new Error("Invalid Quran response");
+            const res = await fetch("https://api.alquran.cloud/v1/surah");
+            const result = await res.json();
             surahs = result.data;
             quranStatus.textContent = "Search a Surah by name or number.";
-        } catch (error) {
-            quranStatus.textContent = "Quran could not be loaded. Check your connection.";
-            console.error("[Zikrnoor] Quran error:", error);
-        }
+        } catch { quranStatus.textContent = "Error loading Quran."; }
     }
 
     function renderSurahs() {
         const query = quranSearch.value.trim().toLowerCase();
         quranResults.replaceChildren();
-        requestId++;
-
-        if (!query) {
-            quranStatus.textContent = "Search a Surah by name or number.";
-            return;
-        }
-
-        const matches = surahs.filter(s =>
-            [s.number, s.name, s.englishName, s.englishNameTranslation]
-                .some(v => String(v ?? "").toLowerCase().includes(query))
-        );
-
-        const fragment = document.createDocumentFragment();
+        if (!query) return;
+        
+        const matches = surahs.filter(s => [s.number, s.englishName].some(v => String(v).toLowerCase().includes(query)));
+        
         matches.forEach(surah => {
             const card = document.createElement("article");
             card.className = "quran-card";
+            card.innerHTML = `<h3>${surah.number}. ${surah.englishName}</h3><p>${surah.name}</p><button type="button" class="read-btn">Read Surah</button><div class="quran-verses" hidden></div>`;
+            
+            const btn = card.querySelector(".read-btn");
+            const versesDiv = card.querySelector(".quran-verses");
 
-            const title = document.createElement("h3");
-            title.textContent = `${surah.number}. ${surah.englishName}`;
-
-            const details = document.createElement("p");
-            details.textContent = `${surah.name} · ${surah.numberOfAyahs} Ayahs`;
-
-            const button = document.createElement("button");
-            button.type = "button";
-            button.textContent = "Read Surah";
-
-            const verses = document.createElement("div");
-            verses.className = "quran-verses";
-            verses.hidden = true;
-
-            button.addEventListener("click", async () => {
-                if (!verses.hidden) {
-                    verses.hidden = true;
-                    button.textContent = "Read Surah";
-                    inFlight.get(surah.number)?.abort();
-                    inFlight.delete(surah.number);
-                    return;
-                }
-                closeOpenSurahs(verses);
-                verses.hidden = false;
-                button.textContent = "Close Surah";
-                if (verses.dataset.loaded === "true") {
-                    verses.scrollIntoView({ behavior: PREFERS_REDUCED_MOTION ? "auto" : "smooth", block: "nearest" });
-                    return;
-                }
-                const currentRequest = ++requestId;
-                await loadSurahVerses(surah.number, verses, currentRequest);
-                verses.scrollIntoView({ behavior: PREFERS_REDUCED_MOTION ? "auto" : "smooth", block: "nearest" });
+            btn.addEventListener("click", async () => {
+                if (!versesDiv.hidden) { versesDiv.hidden = true; btn.textContent = "Read Surah"; return; }
+                versesDiv.hidden = false; btn.textContent = "Close Surah";
+                if (versesDiv.dataset.loaded) return;
+                versesDiv.textContent = "Loading...";
+                
+                try {
+                    const r = await fetch(`https://api.alquran.cloud/v1/surah/${surah.number}/editions/quran-uthmani,en.sahih`);
+                    const data = await r.json();
+                    const [ar, en] = data.data;
+                    
+                    versesDiv.innerHTML = ar.ayahs.map((ayah, i) => {
+                        const safeAr = ayah.text.replace(/'/g, "\\'");
+                        const safeEn = en.ayahs[i].text.replace(/'/g, "\\'");
+                        return `
+                        <article class="quran-ayah">
+                            <p class="quran-arabic" dir="rtl">${ayah.text} ۝ ${ayah.numberInSurah}</p>
+                            <p>${en.ayahs[i].text}</p>
+                            <button class="bookmark-btn" style="margin-top:8px; font-size:12px; padding:6px 12px;" 
+                                onclick="window.saveQuranBookmark(${surah.number}, '${surah.englishName}', ${ayah.numberInSurah}, '${safeAr}', '${safeEn}')">
+                                ♡ Bookmark Verse
+                            </button>
+                        </article>
+                    `}).join("");
+                    versesDiv.dataset.loaded = "true";
+                } catch { versesDiv.textContent = "Error loading verses."; }
             });
-
-            card.append(title, details, button, verses);
-            fragment.appendChild(card);
-        });
-
-        quranResults.appendChild(fragment);
-        fadeInChildren(quranResults);
-        quranStatus.textContent = matches.length
-            ? `${matches.length} Surah found`
-            : "No Surah found. Try another name.";
-    }
-
-    function closeOpenSurahs(except = null) {
-        quranResults.querySelectorAll(".quran-verses").forEach(verses => {
-            if (verses === except) return;
-            verses.hidden = true;
-            const btn = verses.previousElementSibling;
-            if (btn) btn.textContent = "Read Surah";
+            quranResults.appendChild(card);
         });
     }
 
-    async function loadSurahVerses(number, container, currentRequest) {
-        container.textContent = "Loading verses...";
-        const controller = new AbortController();
-        inFlight.set(number, controller);
-        try {
-            const response = await fetch(
-                `https://api.alquran.cloud/v1/surah/${number}/editions/quran-uthmani,en.sahih`,
-                { signal: controller.signal }
-            );
-            if (!response.ok) throw new Error("Verses unavailable");
-            const result = await response.json();
-            if (result.code !== 200 || result.data.length < 2) {
-                throw new Error("Invalid verse response");
-            }
-            if (currentRequest !== requestId || !container.isConnected) return;
-
-            const [arabicSurah, englishSurah] = result.data;
-            const fragment = document.createDocumentFragment();
-            arabicSurah.ayahs.forEach((ayah, index) => {
-                const verse = document.createElement("article");
-                verse.className = "quran-ayah";
-
-                const arabic = document.createElement("p");
-                arabic.className = "quran-arabic";
-                arabic.lang = "ar";
-                arabic.dir = "rtl";
-                arabic.textContent = `${ayah.text} ۝ ${ayah.numberInSurah}`;
-
-                const translation = document.createElement("p");
-                translation.textContent =
-                    englishSurah.ayahs[index]?.text ?? "Translation unavailable.";
-
-                verse.append(arabic, translation);
-                fragment.appendChild(verse);
-            });
-
-            container.replaceChildren(fragment);
-            container.dataset.loaded = "true";
-            fadeInChildren(container, 6);
-        } catch (error) {
-            if (error.name === "AbortError") return;
-            if (currentRequest !== requestId || !container.isConnected) return;
-            container.textContent = "Verses could not be loaded. Please try again.";
-            console.error("[Zikrnoor] Surah error:", error);
-        } finally {
-            inFlight.delete(number);
+    window.saveQuranBookmark = function(sNum, sName, aNum, arText, enText) {
+        let saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_QURAN) || "[]");
+        if (!saved.find(x => x.surah === sNum && x.ayah === aNum)) {
+            saved.push({ surah: sNum, surahName: sName, ayah: aNum, ar: arText, en: enText });
+            localStorage.setItem(STORAGE_KEYS.SAVED_QURAN, JSON.stringify(saved));
+            toast("Verse saved to bookmarks!", "success");
+            if (window.refreshBookmarks) window.refreshBookmarks();
+        } else {
+            toast("Verse already saved.", "warning");
         }
-    }
+    };
 
-    quranSearch.addEventListener("input", debounce(renderSurahs, 180));
-
-    document.addEventListener("click", event => {
-        if (event.target.closest("#quran")) return;
-        const nav = event.target.closest("nav a, nav button, .nav-link, [data-section]");
-        if (!nav) return;
-        requestId++;
-        inFlight.forEach(c => c.abort());
-        inFlight.clear();
-        quranSearch.value = "";
-        quranResults.replaceChildren();
-        quranStatus.textContent = "Search a Surah by name or number.";
-    });
-
+    quranSearch.addEventListener("input", debounce(renderSurahs, 200));
     loadQuran();
 }
 
-
 // ---------------------------------------------------------------------------
-// 3. DAILY ADHKAR
+// 3. DAILY ADHKAR (Fallback + DB Support)
 // ---------------------------------------------------------------------------
-function initAdhkar() {
+async function initAdhkar() {
     const adhkarResults = $("#adhkar-results");
     const adhkarSearch  = $("#adhkar-search");
     const adhkarStatus  = $("#adhkar-status");
     const adhkarTabs    = $(".adhkar-controls");
+    if (!adhkarResults) return;
 
-    if (!adhkarResults || !adhkarSearch || !adhkarStatus || !adhkarTabs) {
-        console.warn("[Zikrnoor] Adhkar elements missing — skipping.");
-        return;
-    }
-
-    const adhkarData = [
-        {
-            title: "Morning and Evening Dua",
-            times: ["morning", "evening"],
-            arabic: "اللَّهُمَّ بِكَ أَصْبَحْنَا وَبِكَ أَمْسَيْنَا وَبِكَ نَحْيَا وَبِكَ نَمُوتُ وَإِلَيْكَ النُّشُورُ",
-            translation: "O Allah, by You we enter the morning and evening, by You we live and die, and to You is the resurrection.",
-            target: 1,
-            source: "Hisn al-Muslim 78",
-            url: "https://sunnah.com/hisn:78",
-        },
-        {
-            title: "Protection through Allah's Name",
-            times: ["morning", "evening"],
-            arabic: "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
-            translation: "In the name of Allah, with whose name nothing can cause harm on earth or in heaven. He is the All-Hearing, the All-Knowing.",
-            target: 3,
-            source: "Hisn al-Muslim 86",
-            url: "https://sunnah.com/hisn:86",
-        },
-        {
-            title: "Remembering Allah",
-            times: ["morning", "evening"],
-            arabic: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ",
-            translation: "Glory be to Allah and praise be to Him.",
-            target: 100,
-            source: "Riyad as-Salihin 1451",
-            url: "https://sunnah.com/riyadussalihin/15/44",
-        },
+    // Default Fallback Data (So Duas always show)
+    let adhkarData = [
+        { id: 1, title: "Morning and Evening Dua", times: ["morning", "evening"], arabic: "اللَّهُمَّ بِكَ أَصْبَحْنَا وَبِكَ أَمْسَيْنَا وَبِكَ نَحْيَا وَبِكَ نَمُوتُ وَإِلَيْكَ النُّشُورُ", translation: "O Allah, by You we enter the morning and evening, by You we live and die, and to You is the resurrection.", target: 1, source: "Hisn al-Muslim 78", url: "https://sunnah.com/hisn:78" },
+        { id: 2, title: "Protection through Allah's Name", times: ["morning", "evening"], arabic: "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ", translation: "In the name of Allah, with whose name nothing can cause harm on earth or in heaven. He is the All-Hearing, the All-Knowing.", target: 3, source: "Hisn al-Muslim 86", url: "https://sunnah.com/hisn:86" },
+        { id: 3, title: "Remembering Allah", times: ["morning", "evening"], arabic: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", translation: "Glory be to Allah and praise be to Him.", target: 100, source: "Riyad as-Salihin 1451", url: "https://sunnah.com/riyadussalihin/15/44" }
     ];
+
+    // Try to load real IDs from Database
+    try {
+        const res = await fetch("/api/adhkar");
+        if (res.ok) {
+            const json = await res.json();
+            if (json.adhkar && json.adhkar.length > 0) {
+                adhkarData = json.adhkar.map(a => ({
+                    id: a.adhkar_id, title: a.title, times: ["morning", "evening"], arabic: a.arabic_text, translation: a.translation, target: a.recommended_count || 1, source: a.source?.source_name || "Source", url: a.source?.source_url || "#"
+                }));
+            }
+        }
+    } catch { /* Use fallback */ }
 
     let activeTime = "morning";
     const adhkarCounts = {};
 
     function renderAdhkar() {
         const query = adhkarSearch.value.trim().toLowerCase();
-        const items = adhkarData.filter(dua =>
-            dua.times.includes(activeTime) &&
-            `${dua.title} ${dua.translation}`.toLowerCase().includes(query)
-        );
+        const items = adhkarData.filter(dua => dua.times.includes(activeTime) && `${dua.title} ${dua.translation}`.toLowerCase().includes(query));
 
         adhkarResults.innerHTML = items.map(dua => {
-            const id = adhkarData.indexOf(dua);
-            const count = adhkarCounts[id] ?? 0;
+            const count = adhkarCounts[dua.id] ?? 0;
             const done = count >= dua.target;
             return `
                 <article class="adhkar-card">
                     <h3>${dua.title}</h3>
-                    <p class="adhkar-arabic" lang="ar" dir="rtl">${dua.arabic}</p>
+                    <p class="adhkar-arabic" dir="rtl">${dua.arabic}</p>
                     <p class="adhkar-translation">${dua.translation}</p>
                     <p>Read: ${count}/${dua.target}</p>
-                    <progress value="${count}" max="${dua.target}"></progress>
                     <div class="adhkar-actions">
-                        <button type="button" data-count="${id}" ${done ? "disabled" : ""}>
-                            ${done ? "Completed ✓" : "Count +1"}
-                        </button>
-                        <button type="button" data-reset="${id}">Reset</button>
+                        <button type="button" data-count="${dua.id}" ${done ? "disabled" : ""}>${done ? "Done ✓" : "Count +1"}</button>
+                        <button type="button" data-reset="${dua.id}">Reset</button>
+                        <button type="button" class="bookmark-btn" data-bookmark="${dua.id}">♡ Bookmark</button>
                     </div>
-                    <a href="${dua.url}" target="_blank"
-                        rel="noopener noreferrer">${dua.source} · Reference ↗</a>
+                    <a href="${dua.url}" target="_blank" rel="noopener noreferrer">${dua.source} · Reference ↗</a>
                 </article>
             `;
         }).join("");
-
-        fadeInChildren(adhkarResults, 50);
-        adhkarStatus.textContent = items.length
-            ? `${items.length} Adhkar available`
-            : "No matching Adhkar found.";
+        adhkarStatus.textContent = `${items.length} Adhkar available`;
     }
 
-    adhkarTabs.addEventListener("click", event => {
-        const button = event.target.closest("[data-time]");
-        if (!button) return;
-        activeTime = button.dataset.time;
+    adhkarTabs.addEventListener("click", e => {
+        const btn = e.target.closest("[data-time]");
+        if (!btn) return;
+        activeTime = btn.dataset.time;
         adhkarTabs.querySelector(".active")?.classList.remove("active");
-        button.classList.add("active");
+        btn.classList.add("active");
         renderAdhkar();
     });
 
-    adhkarSearch.addEventListener("input", debounce(renderAdhkar, 180));
+    adhkarSearch.addEventListener("input", debounce(renderAdhkar, 200));
 
-    adhkarResults.addEventListener("click", event => {
-        const countBtn = event.target.closest("[data-count]");
-        const resetBtn = event.target.closest("[data-reset]");
+    adhkarResults.addEventListener("click", e => {
+        const countBtn = e.target.closest("[data-count]");
+        const resetBtn = e.target.closest("[data-reset]");
+        const bookmarkBtn = e.target.closest("[data-bookmark]");
+
         if (countBtn) {
             const id = countBtn.dataset.count;
-            const dua = adhkarData[id];
+            const dua = adhkarData.find(a => a.id == id);
             if (!dua) return;
-            const prev = adhkarCounts[id] ?? 0;
-            if (prev >= dua.target) return;
-            adhkarCounts[id] = Math.min(prev + 1, dua.target);
-            haptic(6);
+            adhkarCounts[id] = Math.min((adhkarCounts[id] ?? 0) + 1, dua.target);
             renderAdhkar();
-            if (adhkarCounts[id] >= dua.target) {
-                toast(`Completed: ${dua.title}`, "success");
-            }
         } else if (resetBtn) {
             adhkarCounts[resetBtn.dataset.reset] = 0;
             renderAdhkar();
+        } else if (bookmarkBtn) {
+            const adhkarId = Number(bookmarkBtn.dataset.bookmark);
+            bookmarkBtn.textContent = "Saving...";
+            fetch("/api/bookmarks", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ item_type: "adhkar", adhkar_id: adhkarId })
+            }).then(res => {
+                if (res.status === 409) toast("Already bookmarked.", "warning");
+                else if (res.ok) { toast("Saved to DB ♥", "success"); if (window.refreshBookmarks) window.refreshBookmarks(); }
+                else toast("DB Error. Make sure Flask is running.", "warning");
+                bookmarkBtn.textContent = "♥ Saved";
+            }).catch(() => { toast("Network error.", "warning"); bookmarkBtn.textContent = "♡ Bookmark"; });
         }
     });
 
     renderAdhkar();
 }
-
 
 // ---------------------------------------------------------------------------
 // 4. HADITH COLLECTION
@@ -579,176 +336,223 @@ function initHadith() {
     const hadithStatus  = $("#hadith-status");
     const savedButton   = $("#saved-hadith");
     const hadithFilters = $(".hadith-filters");
-
-    if (!hadithResults || !hadithSearch || !hadithStatus
-        || !savedButton || !hadithFilters) {
-        console.warn("[Zikrnoor] Hadith elements missing — skipping.");
-        return;
-    }
+    if (!hadithResults) return;
 
     const hadiths = [
-        {
-            id: "bukhari-1",
-            title: "Actions are judged by intentions",
-            topic: "Intentions",
-            narrator: "Umar ibn Al-Khattab (RA)",
-            arabic: "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ",
-            translation: "The reward of deeds depends upon the intentions, and every person will get the reward according to what they intended.",
-            source: "Sahih al-Bukhari 1",
-            url: "https://sunnah.com/bukhari/1/1",
-        },
-        {
-            id: "bukhari-13",
-            title: "Wish good for others",
-            topic: "Faith",
-            narrator: "Anas (RA)",
-            arabic: "لا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ",
-            translation: "None of you will have faith till he wishes for his brother what he likes for himself.",
-            source: "Sahih al-Bukhari 13",
-            url: "https://sunnah.com/bukhari/2/6",
-        },
+        { id: "bukhari-1", title: "Actions are judged by intentions", topic: "Intentions", narrator: "Umar ibn Al-Khattab (RA)", arabic: "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ", translation: "The reward of deeds depends upon the intentions...", source: "Sahih al-Bukhari 1" },
+        { id: "bukhari-13", title: "Wish good for others", topic: "Faith", narrator: "Anas (RA)", arabic: "لا يُؤْمِنُ أَحَدُكُمْ...", translation: "None of you will have faith till he wishes for his brother...", source: "Sahih al-Bukhari 13" }
     ];
 
     let activeTopic = "all";
-    let showSaved = false;
-    let savedHadith = JSON.parse(
-        localStorage.getItem(STORAGE_KEYS.SAVED_HADITH) ?? "[]"
-    );
+    let savedHadith = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_HADITH) || "[]");
 
     function renderHadith() {
         const query = hadithSearch.value.trim().toLowerCase();
         const filtered = hadiths.filter(h => {
-            const matchesText = [h.title, h.topic, h.narrator, h.translation, h.source]
-                .some(t => t.toLowerCase().includes(query));
-            const matchesTopic = activeTopic === "all"
-                || h.topic.toLowerCase() === activeTopic;
-            return matchesText && matchesTopic
-                && (!showSaved || savedHadith.includes(h.id));
+            const matchesText = [h.title, h.topic, h.narrator, h.translation].some(t => t.toLowerCase().includes(query));
+            return matchesText && (activeTopic === "all" || h.topic.toLowerCase() === activeTopic);
         });
 
         hadithResults.innerHTML = filtered.map(h => `
             <article class="hadith-card">
                 <span class="hadith-topic">${h.topic}</span>
                 <h3>${h.title}</h3>
-                <p class="hadith-arabic" lang="ar" dir="rtl">${h.arabic}</p>
+                <p class="hadith-arabic" dir="rtl">${h.arabic}</p>
                 <p class="hadith-translation">${h.translation}</p>
                 <p class="hadith-source">Narrated by ${h.narrator}</p>
                 <div class="hadith-actions">
-                    <a class="hadith-source-link"
-                       href="${h.url}" target="_blank"
-                       rel="noopener noreferrer">${h.source} ↗</a>
-                    <button type="button" data-save="${h.id}">
-                        ${savedHadith.includes(h.id) ? "♥ Saved" : "♡ Save"}
-                    </button>
+                    <button type="button" data-save="${h.id}">${savedHadith.includes(h.id) ? "♥ Saved" : "♡ Save"}</button>
                 </div>
             </article>
         `).join("");
-
-        fadeInChildren(hadithResults, 50);
-        hadithStatus.textContent = filtered.length
-            ? `${filtered.length} Hadith found`
-            : "No matching Hadith found.";
+        hadithStatus.textContent = `${filtered.length} Hadith found`;
     }
 
-    hadithSearch.addEventListener("input", debounce(renderHadith, 180));
-
-    hadithFilters.addEventListener("click", event => {
-        const button = event.target.closest("[data-topic]");
-        if (!button) return;
-        activeTopic = button.dataset.topic;
+    hadithSearch.addEventListener("input", debounce(renderHadith, 200));
+    hadithFilters.addEventListener("click", e => {
+        const btn = e.target.closest("[data-topic]");
+        if (!btn) return;
+        activeTopic = btn.dataset.topic;
         hadithFilters.querySelector(".active")?.classList.remove("active");
-        button.classList.add("active");
+        btn.classList.add("active");
         renderHadith();
     });
 
-    savedButton.addEventListener("click", () => {
-        showSaved = !showSaved;
-        savedButton.classList.toggle("active", showSaved);
-        savedButton.textContent = showSaved ? "♡ All Hadith" : "♡ Saved";
-        renderHadith();
-    });
-
-    hadithResults.addEventListener("click", event => {
-        const button = event.target.closest("[data-save]");
-        if (!button) return;
-        const id = button.dataset.save;
+    hadithResults.addEventListener("click", e => {
+        const btn = e.target.closest("[data-save]");
+        if (!btn) return;
+        const id = btn.dataset.save;
         const isSaving = !savedHadith.includes(id);
-        savedHadith = isSaving
-            ? [...savedHadith, id]
-            : savedHadith.filter(s => s !== id);
-        try {
-            localStorage.setItem(STORAGE_KEYS.SAVED_HADITH, JSON.stringify(savedHadith));
-        } catch (e) {
-            console.warn("[Zikrnoor] Could not save hadith:", e);
-        }
-        haptic(6);
-        toast(isSaving ? "Saved ♥" : "Removed from saved", isSaving ? "success" : "info");
+        savedHadith = isSaving ? [...savedHadith, id] : savedHadith.filter(s => s !== id);
+        localStorage.setItem(STORAGE_KEYS.SAVED_HADITH, JSON.stringify(savedHadith));
+        toast(isSaving ? "Saved Hadith ♥" : "Removed", isSaving ? "success" : "info");
         renderHadith();
+        if (window.refreshBookmarks) window.refreshBookmarks();
     });
 
     renderHadith();
 }
 
-
 // ---------------------------------------------------------------------------
-// 5. MY DAILY ROUTINE
+// 5. ROUTINE
 // ---------------------------------------------------------------------------
 function initRoutine() {
-    const routineTasks        = $$(".routine-task");
-    const routineProgressText = $("#routine-progress-text");
-    const routineProgressFill = $("#routine-progress-fill");
+    const tasks = $$(".routine-task");
+    const text = $("#routine-progress-text");
+    const fill = $("#routine-progress-fill");
+    if (!tasks.length) return;
 
-    if (!routineTasks.length || !routineProgressText || !routineProgressFill) {
-        console.warn("[Zikrnoor] Routine elements missing — skipping.");
-        return;
-    }
+    const date = new Date().toLocaleDateString("en-CA");
+    let saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.ROUTINE) || "{}");
+    if (saved.date !== date) saved = { date, completed: [] };
 
-    const routineDate = new Date().toLocaleDateString("en-CA");
-    let savedRoutine = JSON.parse(
-        localStorage.getItem(STORAGE_KEYS.ROUTINE) ?? "{}"
-    );
-
-    if (savedRoutine.date !== routineDate) {
-        savedRoutine = { date: routineDate, completed: [] };
-    }
-
-    routineTasks.forEach((task, index) => {
-        task.checked = savedRoutine.completed.includes(index);
-        task.addEventListener("change", () => {
-            savedRoutine.completed = routineTasks
-                .map((item, i) => (item.checked ? i : -1))
-                .filter(i => i !== -1);
-            savedRoutine.date = routineDate;
-            try {
-                localStorage.setItem(STORAGE_KEYS.ROUTINE, JSON.stringify(savedRoutine));
-            } catch (e) {
-                console.warn("[Zikrnoor] Could not save routine:", e);
-            }
-            haptic(6);
-            updateRoutineProgress();
+    tasks.forEach((t, i) => {
+        t.checked = saved.completed.includes(i);
+        t.addEventListener("change", () => {
+            saved.completed = tasks.map((x, j) => x.checked ? j : -1).filter(x => x !== -1);
+            localStorage.setItem(STORAGE_KEYS.ROUTINE, JSON.stringify(saved));
+            update();
         });
     });
 
-    function updateRoutineProgress() {
-        const total = routineTasks.length;
-        const completed = routineTasks.filter(t => t.checked).length;
-        const pct = total ? (completed / total) * 100 : 0;
-        routineProgressText.textContent = `${completed} of ${total} completed`;
-        routineProgressFill.style.width = `${pct}%`;
+    function update() {
+        const done = tasks.filter(x => x.checked).length;
+        text.textContent = `${done} of ${tasks.length} completed`;
+        fill.style.width = `${(done / tasks.length) * 100}%`;
+    }
+    update();
+}
 
-        if (completed === total && total > 0) {
-            toast("Today's routine complete!", "success");
+// ---------------------------------------------------------------------------
+// 6. UNIFIED BOOKMARKS (DB + LocalStorage)
+// ---------------------------------------------------------------------------
+async function initBookmarks() {
+    const resContainer = $("#bookmarks-results");
+    const emptyMsg     = $("#bookmarks-empty");
+    if (!resContainer || !emptyMsg) return;
+
+    async function fetchAllBookmarks() {
+        let html = "";
+
+        // 1. Fetch Adhkar from MySQL
+        try {
+            const res = await fetch("/api/bookmarks");
+            const data = await res.json();
+            if (data.bookmarks && data.bookmarks.length > 0) {
+                html += data.bookmarks.map(b => `
+                    <article class="adhkar-card" style="margin-bottom: 16px; border-left: 3px solid #d7b66d;">
+                        <span class="hadith-topic" style="color:#83b89a; font-size:12px;">Adhkar (From Database)</span>
+                        <h3 style="color: var(--gold); margin-top:4px;">${b.adhkar_title || 'Adhkar'}</h3>
+                        <p class="adhkar-arabic" dir="rtl">${b.adhkar_arabic || ''}</p>
+                        <p class="adhkar-translation">${b.adhkar_translation || ''}</p>
+                        <div class="adhkar-actions">
+                            <button class="btn-delete-db" data-id="${b.bookmark_id}" style="border: 1px solid #ff4444; color: #ff4444; background: transparent;">Remove</button>
+                        </div>
+                    </article>
+                `).join("");
+            }
+        } catch (e) { console.warn("DB bookmarks failed to load"); }
+
+        // 2. Fetch Quran from LocalStorage
+        const quranSaved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_QURAN) || "[]");
+        if (quranSaved.length > 0) {
+            html += quranSaved.map(q => `
+                <article class="adhkar-card" style="margin-bottom: 16px; border-left: 3px solid #83b89a;">
+                    <span class="hadith-topic" style="color:#83b89a; font-size:12px;">Quran (Surah ${q.surah}, Ayah ${q.ayah})</span>
+                    <p class="adhkar-arabic" dir="rtl">${q.ar}</p>
+                    <p class="adhkar-translation">${q.en}</p>
+                    <div class="adhkar-actions">
+                        <button class="btn-delete-local" data-type="quran" data-id="${q.surah}-${q.ayah}" style="border: 1px solid #ff4444; color: #ff4444; background: transparent;">Remove</button>
+                    </div>
+                </article>
+            `).join("");
+        }
+
+        // 3. Fetch Hadith from LocalStorage
+        const hadithSaved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_HADITH) || "[]");
+        if (hadithSaved.length > 0) {
+            const hMap = {
+                "bukhari-1": { title: "Actions are judged by intentions", text: "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ" },
+                "bukhari-13": { title: "Wish good for others", text: "لا يُؤْمِنُ أَحَدُكُمْ..." }
+            };
+            html += hadithSaved.map(id => `
+                <article class="adhkar-card" style="margin-bottom: 16px; border-left: 3px solid #83b89a;">
+                    <span class="hadith-topic" style="color:#83b89a; font-size:12px;">Hadith</span>
+                    <h3 style="color: var(--gold); margin-top:4px;">${hMap[id]?.title || id}</h3>
+                    <p class="adhkar-arabic" dir="rtl">${hMap[id]?.text || ''}</p>
+                    <div class="adhkar-actions">
+                        <button class="btn-delete-local" data-type="hadith" data-id="${id}" style="border: 1px solid #ff4444; color: #ff4444; background: transparent;">Remove</button>
+                    </div>
+                </article>
+            `).join("");
+        }
+
+        // 4. Fetch Tasbeeh from LocalStorage
+        const tasbeehSaved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_TASBEEH) || "[]");
+        if (tasbeehSaved.length > 0) {
+            html += tasbeehSaved.map(z => `
+                <article class="adhkar-card" style="margin-bottom: 16px; border-left: 3px solid #83b89a;">
+                    <span class="hadith-topic" style="color:#83b89a; font-size:12px;">Tasbeeh Zikr</span>
+                    <h3 style="color: var(--gold); margin-top:4px;">${z}</h3>
+                    <div class="adhkar-actions">
+                        <button class="btn-delete-local" data-type="tasbeeh" data-id="${z}" style="border: 1px solid #ff4444; color: #ff4444; background: transparent;">Remove</button>
+                    </div>
+                </article>
+            `).join("");
+        }
+
+        // Render
+        if (html === "") {
+            resContainer.innerHTML = "";
+            emptyMsg.hidden = false;
+        } else {
+            emptyMsg.hidden = true;
+            resContainer.innerHTML = html;
+            fadeInChildren(resContainer);
         }
     }
 
-    updateProgressAnimations();
-    updateRoutineProgress();
-}
+    window.refreshBookmarks = fetchAllBookmarks;
 
-/* Smooth the routine progress fill (defensive — works even if CSS lacks transition). */
-function updateProgressAnimations() {
-    const el = document.querySelector("#routine-progress-fill");
-    if (el && !el.style.transition) {
-        el.style.transition = "width 0.4s cubic-bezier(0.2, 0.8, 0.3, 1)";
-    }
+    resContainer.addEventListener("click", async (e) => {
+        // Database Delete
+        const dbBtn = e.target.closest(".btn-delete-db");
+        if (dbBtn) {
+            if (!confirm("Remove this Adhkar from database?")) return;
+            await fetch(`/api/bookmarks/${dbBtn.dataset.id}`, { method: "DELETE" });
+            toast("Removed from DB", "info");
+            fetchAllBookmarks();
+            return;
+        }
+
+        // LocalStorage Delete
+        const localBtn = e.target.closest(".btn-delete-local");
+        if (localBtn) {
+            if (!confirm("Remove this bookmark?")) return;
+            const type = localBtn.dataset.type;
+            const id = localBtn.dataset.id;
+
+            if (type === "quran") {
+                let saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_QURAN) || "[]");
+                saved = saved.filter(x => `${x.surah}-${x.ayah}` !== id);
+                localStorage.setItem(STORAGE_KEYS.SAVED_QURAN, JSON.stringify(saved));
+            } else if (type === "hadith") {
+                let saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_HADITH) || "[]");
+                saved = saved.filter(x => x !== id);
+                localStorage.setItem(STORAGE_KEYS.SAVED_HADITH, JSON.stringify(saved));
+            } else if (type === "tasbeeh") {
+                let saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_TASBEEH) || "[]");
+                saved = saved.filter(x => x !== id);
+                localStorage.setItem(STORAGE_KEYS.SAVED_TASBEEH, JSON.stringify(saved));
+            }
+            
+            toast("Removed", "info");
+            fetchAllBookmarks();
+            if (type === "hadith") {
+                document.querySelector("#hadith-search").dispatchEvent(new Event("input"));
+            }
+        }
+    });
+
+    fetchAllBookmarks();
 }

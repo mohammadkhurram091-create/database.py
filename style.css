@@ -1,8 +1,5 @@
 /* ============================================================
    ZIKRNOOR — FUTURISTIC THEME
-   ============================================================
-   Every selector matches index.html + script.js exactly.
-   No functionality changes — this is a pure visual upgrade.
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap');
@@ -1455,5 +1452,80 @@ button, select { cursor: pointer; }
     *, *::before, *::after {
         transition: none !important;
         animation: none !important;
+    }
+}
+
+/* ============================================================
+   SMOOTH HOVER SCALE EFFECTS (Premium & Interactive)
+   ============================================================ */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    
+    /* Base transition for all targeted interactive elements */
+    .navbar a, 
+    button, 
+    .primary-button, 
+    .count-button, 
+    .adhkar-tab, 
+    .hadith-filter, 
+    .hadith-toolbar button,
+    input[type="text"], 
+    input[type="search"], 
+    select, 
+    .daily-card, 
+    .adhkar-card, 
+    .hadith-card, 
+    .quran-card {
+        transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.3, 1), 
+                    box-shadow 0.25s ease, 
+                    border-color 0.25s ease;
+        will-change: transform;
+    }
+
+    /* 1. Navbar Links (Scale 1.06) */
+    .navbar a:hover {
+        transform: scale(1.06);
+        z-index: 10;
+    }
+
+    /* 2. Buttons & Inputs (Scale 1.03) */
+    button:hover, 
+    .adhkar-tab:hover, 
+    .hadith-filter:hover, 
+    .hadith-toolbar button:hover,
+    input[type="text"]:hover, 
+    input[type="search"]:hover, 
+    select:hover {
+        transform: scale(1.03);
+        z-index: 10;
+    }
+
+    /* Specific overrides for buttons that already have a translateY hover */
+    .primary-button:hover {
+        transform: translateY(-2px) scale(1.03);
+    }
+    .count-button:hover {
+        transform: translateY(-2px) scale(1.03);
+    }
+    .adhkar-actions button[data-count]:hover:not(:disabled) {
+        transform: translateY(-1px) scale(1.03);
+    }
+    .quran-card > button:hover {
+        transform: translateY(-1px) scale(1.03);
+    }
+
+    /* 3. Cards (Scale 1.02 + Subtle Shadow/Glow) */
+    .feature-card:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(215, 182, 109, 0.12);
+    }
+    
+    .daily-card:hover,
+    .adhkar-card:hover, 
+    .hadith-card:hover, 
+    .quran-card:hover {
+        transform: scale(1.02);
+        border-color: var(--border-strong);
+        box-shadow: 0 8px 32px rgba(215, 182, 109, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        z-index: 5;
     }
 }
